@@ -438,6 +438,7 @@ saveEdit(logId: number) {
                 this.aiCoachService.refreshInsights().subscribe();
                 this.loadDashboardSummary();
                 this.loadRecentActivities();
+                this.loadGraphs();
             },
             () => {
                 this.errorMessage = 'Failed to delete activity log. Please try again.';
