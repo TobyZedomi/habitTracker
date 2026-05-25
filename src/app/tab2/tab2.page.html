@@ -1,17 +1,211 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 2
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
+<ion-header class="habits-header">
     <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
+        <ion-title>Habits</ion-title>
+        <ion-buttons slot="end">
+            <ion-button class="logout-btn" (click)="logout()">Logout</ion-button>
+        </ion-buttons>
     </ion-toolbar>
-  </ion-header>
-
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+</ion-header>
+ 
+<ion-content [fullscreen]="true" class="habits-content">
+    <div class="page-shell">
+ 
+        <section class="page-intro">
+            <div class="page-intro-text">
+                <h1>Habits</h1>
+                <p>Track your routines and log your weekly activity</p>
+            </div>
+        </section>
+ 
+        <div class="tab-switcher">
+            <button class="tab-btn" [class.active]="activeSegment === 'log'" (click)="activeSegment = 'log'">
+                <ion-icon name="fitness-outline"></ion-icon>
+                Activity Log
+            </button>
+            <button class="tab-btn" [class.active]="activeSegment === 'habits'" (click)="activeSegment = 'habits'">
+                <ion-icon name="list-outline"></ion-icon>
+                Habits
+            </button>
+        </div>
+ 
+        <div *ngIf="activeSegment === 'log'" class="segment-panel">
+ 
+            <section *ngIf="cardsLoading" class="state-card loading-state">
+                <ion-spinner name="crescent"></ion-spinner>
+                <p>Loading activity cards...</p>
+            </section>
+ 
+            <section *ngIf="cardsError && !cardsLoading" class="state-card error-state">
+                <ion-text color="danger">
+                    <p>{{ cardsError }}</p>
+                </ion-text>
+            </section>
+ 
+            <section *ngIf="!cardsLoading && weeklyCards.length === 0 && !cardsError" class="state-card empty-state">
+                <ion-icon name="fitness-outline" class="empty-icon"></ion-icon>
+                <h2>No habits to log</h2>
+                <p>Create habits in the Habits tab to start logging activity here each week.</p>
+                <ion-button (click)="activeSegment = 'habits'">
+                    <ion-icon slot="start" name="list-outline"></ion-icon>
+                    Go to Habits
+                </ion-button>
+            </section>
+ 
+            <div *ngIf="!cardsLoading && weeklyCards.length > 0" class="cards-list">
+                <div *ngFor="let card of weeklyCards" [id]="'log-card-' + card.habitId">
+                    <app-activity-log-card [card]="card" (activityLogged)="onActivityLogged()"></app-activity-log-card>
+                </div>
+            </div>
+        </div>
+ 
+        <div *ngIf="activeSegment === 'habits'" class="segment-panel">
+ 
+            <div class="habits-panel-header">
+                <ion-button class="add-habit-main-btn" (click)="goToCreateHabit()">
+                    <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+                    Add Habit
+                </ion-button>
+            </div>
+ 
+            <section *ngIf="habitsLoading" class="state-card loading-state">
+                <ion-spinner name="crescent"></ion-spinner>
+                <p>Loading habits...</p>
+            </section>
+ 
+            <section *ngIf="habitsError && !habitsLoading" class="state-card error-state">
+                <ion-text color="danger">
+                    <p>{{ habitsError }}</p>
+                </ion-text>
+            </section>
+ 
+            <section *ngIf="!habitsLoading && habits.length === 0 && !habitsError" class="state-card empty-state">
+                <ion-icon name="pulse-outline" class="empty-icon"></ion-icon>
+                <h2>No habits yet</h2>
+                <p>Create your first habit to start tracking your weekly progress.</p>
+                <ion-button expand="block" (click)="goToCreateHabit()">
+                    <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+                    Create Habit
+                </ion-button>
+            </section>
+ 
+            <section *ngIf="!habitsLoading && habits.length > 0" class="habits-list">
+                <ion-card
+                    *ngFor="let habit of habits"
+                    class="habit-card"
+                    [id]="'habit-card-' + habit.habitId"
+                    [class.habit-card-highlight]="highlightedHabitId === habit.habitId">
+ 
+                    <ion-card-header>
+                        <div class="habit-header-row">
+                            <div class="habit-title-wrap">
+                                <div class="habit-chip-row">
+                                    <ion-chip class="status-chip" [color]="habit.active ? 'success' : 'medium'">
+                                        <ion-label>{{ habit.active ? 'Active' : 'Inactive' }}</ion-label>
+                                    </ion-chip>
+                                </div>
+                                <div class="habit-title-row">
+                                    <div class="habit-icon-badge">
+                                        <ion-icon name="pulse-outline"></ion-icon>
+                                    </div>
+                                    <div>
+                                        <ion-card-title>{{ habit.activityName }}</ion-card-title>
+                                        <ion-card-subtitle *ngIf="habit.activityStatusText">
+                                            {{ habit.activityStatusText }}
+                                        </ion-card-subtitle>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ion-card-header>
+ 
+                    <ion-card-content>
+                        <div class="detail-grid">
+                            <div class="detail-box detail-box-full">
+                                <div class="detail-label-row">
+                                    <ion-icon name="document-text-outline"></ion-icon>
+                                    <span class="label">Description</span>
+                                </div>
+                                <span class="value">{{ habit.description || 'No description provided' }}</span>
+                            </div>
+                            <div class="detail-box">
+                                <div class="detail-label-row">
+                                    <ion-icon name="time-outline"></ion-icon>
+                                    <span class="label">Reminder</span>
+                                </div>
+                                <span class="value">{{ habit.reminder || 'Not set' }}</span>
+                            </div>
+                            <div class="detail-box">
+                                <div class="detail-label-row">
+                                    <ion-icon name="flag-outline"></ion-icon>
+                                    <span class="label">Target</span>
+                                </div>
+                                <span class="value">{{ habit.target || 'Not set' }}</span>
+                            </div>
+                            <div class="detail-box">
+                                <div class="detail-label-row">
+                                    <ion-icon name="repeat-outline"></ion-icon>
+                                    <span class="label">Frequency</span>
+                                </div>
+                                <span class="value">{{ habit.frequency }}x / week</span>
+                            </div>
+                            <div class="detail-box">
+                                <div class="detail-label-row">
+                                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                                    <span class="label">Status</span>
+                                </div>
+                                <span class="value">{{ habit.active ? 'Enabled' : 'Disabled' }}</span>
+                            </div>
+                        </div>
+ 
+                        <div class="section-label">Streak</div>
+ 
+                        <div class="streak-grid">
+                            <div class="streak-box">
+                                <div class="detail-label-row">
+                                    <ion-icon name="flame-outline"></ion-icon>
+                                    <span class="label">Current</span>
+                                </div>
+                                <span class="value">{{ habit.currentStreak }}</span>
+                            </div>
+                            <div class="streak-box">
+                                <div class="detail-label-row">
+                                    <ion-icon name="trophy-outline"></ion-icon>
+                                    <span class="label">Best</span>
+                                </div>
+                                <span class="value">{{ habit.longestStreak }}</span>
+                            </div>
+                            <div class="streak-box">
+                                <div class="detail-label-row">
+                                    <ion-icon name="calendar-outline"></ion-icon>
+                                    <span class="label">Last Done</span>
+                                </div>
+                                <span class="value" *ngIf="habit.lastCompletedDate">{{ habit.lastCompletedDate | date:'mediumDate' }}</span>
+                                <span class="value" *ngIf="!habit.lastCompletedDate">Not yet</span>
+                            </div>
+                        </div>
+ 
+                        <div class="button-group">
+                            <ion-button expand="block" (click)="goToHabitDetail(habit.habitId)">
+                                <ion-icon slot="start" name="reader-outline"></ion-icon>
+                                View
+                            </ion-button>
+                            <ion-button expand="block" (click)="goToLogActivityForHabit(habit.habitId)">
+                                <ion-icon slot="start" name="fitness-outline"></ion-icon>
+                                Log Activity
+                            </ion-button>
+                            <ion-button expand="block" fill="outline" (click)="goToEditHabit(habit.habitId)">
+                                <ion-icon slot="start" name="create-outline"></ion-icon>
+                                Edit
+                            </ion-button>
+                            <ion-button expand="block" fill="outline" color="danger" (click)="confirmDeleteHabit(habit.habitId, habit.activityName)">
+                                <ion-icon slot="start" name="trash-outline"></ion-icon>
+                                Delete
+                            </ion-button>
+                        </div>
+                    </ion-card-content>
+                </ion-card>
+            </section>
+        </div>
+ 
+    </div>
 </ion-content>
