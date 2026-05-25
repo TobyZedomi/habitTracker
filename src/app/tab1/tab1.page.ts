@@ -120,6 +120,7 @@ editNotes = '';
     ionViewWillEnter() {
         this.loadDashboardSummary();
         this.loadRecentActivities();
+        this.loadGraphs();
     }
 
     onCarouselTouchStart(event: TouchEvent) {
@@ -405,6 +406,7 @@ saveEdit(logId: number) {
             this.cancelEdit();
             this.loadDashboardSummary();
             this.loadRecentActivities();
+            this.loadGraphs();
             this.aiCoachService.refreshInsights().subscribe();
         },
         async (error) => {
