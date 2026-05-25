@@ -1,0 +1,95 @@
+.top-toolbar {
+  --background: #000;
+  --color: #fff;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 56px;
+}
+
+.logo {
+  height: 24px;
+  width: 24px;
+  object-fit: contain;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+}
+
+ion-content {
+  --background: #dfe4ec;
+}
+
+.login-wrapper {
+  min-height: calc(100vh - 56px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: #f4f4f4;
+  border-radius: 24px;
+  padding: 36px 28px;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+.card-logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  margin: 0 auto 14px auto;
+  display: block;
+}
+
+.app-name {
+  font-size: 26px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 8px 0;
+}
+
+.login-title {
+  font-weight: 500;
+  font-size: 16px;
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.input-item {
+  --background: #ececec;
+  --border-radius: 14px;
+  margin-bottom: 14px;
+}
+
+ion-input {
+  --color: #222;
+  --placeholder-color: #888;
+}
+
+.login-btn {
+  --background: #4c7df0;
+  --border-radius: 14px;
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+.register-btn {
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.error-text {
+  margin-top: 8px;
+}

@@ -1,0 +1,108 @@
+<ion-card class="log-card" [class.log-card-completed]="card.weeklyGoalCompleted && !showExtraLogControls">
+    <ion-card-content>
+ 
+        <div class="card-header-row">
+            <div class="card-icon-wrap" [class.icon-completed]="card.weeklyGoalCompleted && !showExtraLogControls">
+                <ion-icon name="fitness-outline"></ion-icon>
+            </div>
+            <div class="card-title-block">
+                <div class="card-habit-name">{{ card.activityName }}</div>
+                <div class="card-status-text" *ngIf="card.activityStatusText">{{ card.activityStatusText }}</div>
+            </div>
+            <div class="card-progress-badge" [class.badge-completed]="card.weeklyGoalCompleted">
+                {{ card.progressLabel }}
+            </div>
+        </div>
+ 
+        <div class="progress-track-wrap">
+            <div class="progress-track">
+                <div class="progress-fill" [class.fill-complete]="card.weeklyGoalCompleted"
+                    [style.width]="progressPercent + '%'"></div>
+            </div>
+            <div class="progress-label-row">
+                <span class="progress-text">{{ card.weeklyCompletedCount }} of {{ card.frequency }} this week</span>
+                <span class="goal-met-label" *ngIf="card.weeklyGoalCompleted">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                    Goal Met
+                </span>
+            </div>
+        </div>
+ 
+        <div *ngIf="card.weeklyGoalCompleted && !showExtraLogControls" class="completed-state-block">
+            <div class="completed-message">
+                <ion-icon name="trophy-outline"></ion-icon>
+                <span>{{ card.activityName }} habit goal completed this week.</span>
+            </div>
+            <ion-button class="extra-log-btn" fill="outline" (click)="showExtraLog()">
+                <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+                Add more activity logs
+            </ion-button>
+        </div>
+ 
+        <div *ngIf="!card.weeklyGoalCompleted || showExtraLogControls" class="log-controls-block">
+ 
+            <div class="checkbox-row">
+                <ion-checkbox [(ngModel)]="isChecked" labelPlacement="end" class="activity-checkbox">
+                    I completed this activity today
+                </ion-checkbox>
+            </div>
+ 
+            <div class="details-toggle-row" *ngIf="!showDetails" (click)="toggleDetails()">
+                <ion-icon name="chevron-down-outline"></ion-icon>
+                <span>Add distance, duration, calories or notes (optional)</span>
+            </div>
+ 
+            <div class="optional-fields-block" *ngIf="showDetails">
+                <div class="optional-header" (click)="toggleDetails()">
+                    <ion-icon name="chevron-up-outline"></ion-icon>
+                    <span>Optional details</span>
+                </div>
+ 
+                <div class="fields-grid">
+                    <div class="field-row">
+                        <div class="field-label">
+                            <ion-icon name="time-outline"></ion-icon>
+                            Duration (mins)
+                        </div>
+                        <input type="number" class="field-input" [(ngModel)]="durationMinutes" min="0" placeholder="e.g. 30">
+                    </div>
+                    <div class="field-row">
+                        <div class="field-label">
+                            <ion-icon name="map-outline"></ion-icon>
+                            Distance (km)
+                        </div>
+                        <input type="number" class="field-input" [(ngModel)]="distanceKm" min="0" step="0.1" placeholder="e.g. 5.5">
+                    </div>
+                    <div class="field-row">
+                        <div class="field-label">
+                            <ion-icon name="flame-outline"></ion-icon>
+                            Calories burned
+                        </div>
+                        <input type="number" class="field-input" [(ngModel)]="caloriesBurned" min="0" placeholder="e.g. 300">
+                    </div>
+                    <div class="field-row field-row-full">
+                        <div class="field-label">
+                            <ion-icon name="document-text-outline"></ion-icon>
+                            Notes
+                        </div>
+                        <textarea class="field-input field-textarea" [(ngModel)]="notes" rows="2" placeholder="How did it go?"></textarea>
+                    </div>
+                </div>
+            </div>
+ 
+            <div class="log-actions-row">
+                <ion-button class="log-btn" expand="block" [disabled]="saving" (click)="logActivity()">
+                    <ion-spinner *ngIf="saving" name="crescent" slot="start"></ion-spinner>
+                    <ion-icon *ngIf="!saving" name="checkmark-circle-outline" slot="start"></ion-icon>
+                    {{ saving ? 'Saving...' : 'Log Activity' }}
+                </ion-button>
+ 
+                <ion-button *ngIf="showExtraLogControls" fill="outline" color="medium" (click)="cancelExtraLog()">
+                    Cancel
+                </ion-button>
+            </div>
+        </div>
+ 
+    </ion-card-content>
+</ion-card>
+ 

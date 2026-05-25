@@ -1,17 +1,317 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+    <ion-title>Home</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">Logout</ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding" [fullscreen]="true">
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <ion-spinner *ngIf="loading"></ion-spinner>
+
+  <ion-text color="danger" *ngIf="errorMessage">
+    <p>{{ errorMessage }}</p>
+  </ion-text>
+
+  <div class="carousel-section" *ngIf="dashboardSummary">
+
+    <div class="carousel-nav-row">
+      <div class="carousel-dots">
+        <button
+          *ngFor="let slide of slides; let i = index"
+          class="carousel-dot"
+          [class.active]="activeSlide === i"
+          (click)="goToSlide(i)">
+        </button>
+      </div>
+      <div class="carousel-label">{{ slides[activeSlide] }}</div>
+      <div class="carousel-arrows">
+        <button class="carousel-arrow" (click)="prevSlide()" [disabled]="activeSlide === 0">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <button class="carousel-arrow" (click)="nextSlide()" [disabled]="activeSlide === slides.length - 1">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="carousel-track-wrap"
+      (touchstart)="onCarouselTouchStart($event)"
+      (touchend)="onCarouselTouchEnd($event)">
+
+      <div class="carousel-track" [style.transform]="'translateX(-' + (activeSlide * 100) + '%)'">
+
+        <div class="carousel-slide">
+          <div class="period-filter">
+            <button
+              *ngFor="let p of periods"
+              class="period-btn"
+              [class.period-btn-active]="selectedPeriod === p.days"
+              (click)="selectPeriod(p.days)">
+              {{ p.label }}
+            </button>
+          </div>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6">
+                <ion-card class="summary-card">
+                  <ion-card-content>
+                    <div class="summary-icon blue"><ion-icon name="list-outline"></ion-icon></div>
+                    <div class="summary-label">Total Habits</div>
+                    <div class="summary-value">{{ dashboardSummary.totalHabits }}</div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="6">
+                <ion-card class="summary-card">
+                  <ion-card-content>
+                    <div class="summary-icon green"><ion-icon name="checkmark-circle-outline"></ion-icon></div>
+                    <div class="summary-label">Active</div>
+                    <div class="summary-value">{{ dashboardSummary.activeHabits }}</div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="6">
+                <ion-card class="summary-card">
+                  <ion-card-content>
+                    <div class="summary-icon purple"><ion-icon name="calendar-outline"></ion-icon></div>
+                    <div class="summary-label">Sessions</div>
+                    <div class="summary-value">{{ dashboardSummary.totalCompletedSessions }}</div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="6">
+                <ion-card class="summary-card">
+                  <ion-card-content>
+                    <div class="summary-icon orange"><ion-icon name="time-outline"></ion-icon></div>
+                    <div class="summary-label">Mins</div>
+                    <div class="summary-value">{{ dashboardSummary.totalDurationMinutes }}</div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="6">
+                <ion-card class="summary-card">
+                  <ion-card-content>
+                    <div class="summary-icon cyan"><ion-icon name="map-outline"></ion-icon></div>
+                    <div class="summary-label">Km</div>
+                    <div class="summary-value">{{ dashboardSummary.totalDistanceKm | number:'1.2-2' }}</div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="6">
+                <ion-card class="summary-card">
+                  <ion-card-content>
+                    <div class="summary-icon red"><ion-icon name="flame-outline"></ion-icon></div>
+                    <div class="summary-label">Calories</div>
+                    <div class="summary-value">{{ dashboardSummary.totalCaloriesBurned }}</div>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="chart-slide-inner">
+            <div class="chart-slide-heading">
+              <ion-icon name="bar-chart-outline"></ion-icon>
+              Daily Completions — Last 30 Days
+            </div>
+            <div *ngIf="graphsLoading" class="slide-loader">
+              <ion-spinner name="crescent"></ion-spinner>
+            </div>
+            <div *ngIf="!graphsLoading && dailyPoints.length === 0" class="slide-empty">
+              <p>No activity data yet. Log some habits to see this graph.</p>
+            </div>
+            <div *ngIf="!graphsLoading && dailyPoints.length > 0" class="canvas-wrap">
+              <canvas #dailyChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="chart-slide-inner">
+            <div class="chart-slide-heading">
+              <ion-icon name="stats-chart-outline"></ion-icon>
+              Weekly Trend — Last 12 Weeks
+            </div>
+            <div *ngIf="graphsLoading" class="slide-loader">
+              <ion-spinner name="crescent"></ion-spinner>
+            </div>
+            <div *ngIf="!graphsLoading && weeklyPoints.length === 0" class="slide-empty">
+              <p>No weekly data yet.</p>
+            </div>
+            <div *ngIf="!graphsLoading && weeklyPoints.length > 0" class="canvas-wrap">
+              <canvas #weeklyChartCanvas></canvas>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="dashboard-section">
+    <div class="section-heading">
+      <h2>Activity</h2>
+      <p>Track your recent activities completed and habit streaks</p>
+    </div>
+
+    <ion-segment [value]="selectedView" (ionChange)="onSegmentChange($event)">
+      <ion-segment-button value="recent">
+        <ion-label>Recent</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="streaks">
+        <ion-label>Streaks</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <div *ngIf="selectedView === 'recent'">
+      <ion-card class="activity-card" *ngFor="let activity of recentActivities">
+        <ion-card-content>
+          <div class="log-top" (click)="toggleActivity(activity.habitTrackerLogId)">
+            <div class="log-title-wrap">
+              <div class="log-icon-badge">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+              </div>
+              <div class="log-title-text">
+                <div class="log-title">{{ activity.activityName }}</div>
+                <div class="log-date-row">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <span>{{ activity.date | date:'mediumDate' }}</span>
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span>{{ activity.createdAt | date:'shortTime' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="log-expand-row">
+              <div class="log-actions" (click)="$event.stopPropagation()">
+                <span class="delete-log-text">Delete</span>
+                <ion-button fill="clear" color="danger" class="delete-log-btn" (click)="confirmDeleteLog(activity.habitTrackerLogId)">
+                  <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
+              <ion-icon [name]="expandedActivityIds.has(activity.habitTrackerLogId) ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+            </div>
+          </div>
+
+          <div *ngIf="expandedActivityIds.has(activity.habitTrackerLogId)">
+
+  <div *ngIf="editingLogId !== activity.habitTrackerLogId">
+    <div class="log-stats">
+      <div class="log-stat">
+        <div class="log-stat-icon time">
+          <ion-icon name="time-outline"></ion-icon>
+        </div>
+        <div class="log-stat-text">
+          <span class="log-stat-label">Duration</span>
+          <span class="log-stat-value">{{ activity.duration ? activity.duration + ' mins' : 'No data was entered for duration' }}</span>
+        </div>
+      </div>
+      <div class="log-stat">
+        <div class="log-stat-icon map">
+          <ion-icon name="map-outline"></ion-icon>
+        </div>
+        <div class="log-stat-text">
+          <span class="log-stat-label">Distance</span>
+          <span class="log-stat-value">{{ activity.distanceKm ? activity.distanceKm + ' km' : 'No data was entered for distance' }}</span>
+        </div>
+      </div>
+      <div class="log-stat">
+        <div class="log-stat-icon flame">
+          <ion-icon name="flame-outline"></ion-icon>
+        </div>
+        <div class="log-stat-text">
+          <span class="log-stat-label">Calories</span>
+          <span class="log-stat-value">{{ activity.caloriesBurned ? activity.caloriesBurned : 'No data was entered for calorie count' }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="log-notes">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <div>
+        <span class="notes-label">Notes</span>
+        <p>{{ activity.notes || 'No notes' }}</p>
+      </div>
+    </div>
+    <div class="log-edit-row">
+      <ion-button fill="outline" size="small" (click)="startEdit(activity)">
+        <ion-icon name="create-outline" slot="start"></ion-icon>
+        Edit
+      </ion-button>
+    </div>
+  </div>
+
+  <div *ngIf="editingLogId === activity.habitTrackerLogId" class="edit-form">
+    <div class="edit-fields">
+      <div class="edit-field">
+        <span class="edit-label">Duration (mins)</span>
+        <input type="number" class="edit-input" [(ngModel)]="editDuration" placeholder="e.g. 30" min="0">
+      </div>
+      <div class="edit-field">
+        <span class="edit-label">Distance (km)</span>
+        <input type="number" class="edit-input" [(ngModel)]="editDistance" placeholder="e.g. 5.0" min="0">
+      </div>
+      <div class="edit-field">
+        <span class="edit-label">Calories</span>
+        <input type="number" class="edit-input" [(ngModel)]="editCalories" placeholder="e.g. 300" min="0">
+      </div>
+      <div class="edit-field edit-field-full">
+        <span class="edit-label">Notes</span>
+        <textarea class="edit-input edit-textarea" [(ngModel)]="editNotes" placeholder="Add notes..."></textarea>
+      </div>
+    </div>
+    <div class="edit-actions">
+      <ion-button fill="outline" size="small" color="medium" (click)="cancelEdit()">
+        Cancel
+      </ion-button>
+      <ion-button fill="solid" size="small" (click)="saveEdit(activity.habitTrackerLogId)">
+        Save
+      </ion-button>
+    </div>
+  </div>
+
+</div>
+
+        </ion-card-content>
+      </ion-card>
+      <ion-text *ngIf="recentActivities.length === 0">
+        <p class="empty-state">No recent activities found.</p>
+      </ion-text>
+    </div>
+
+    <div *ngIf="selectedView === 'streaks'">
+      <ion-card class="streak-card" *ngFor="let habit of dashboardSummary?.habits">
+        <ion-card-content>
+          <div class="streak-top">
+            <div class="streak-badge"><ion-icon name="trophy-outline"></ion-icon></div>
+            <div class="streak-title">{{ habit.activityName }}</div>
+          </div>
+          <div class="streak-stats">
+            <div class="streak-stat">
+              <ion-icon name="flame-outline"></ion-icon>
+              <div><span class="stat-label">Current Streak</span><span class="stat-value">{{ habit.currentStreak }}</span></div>
+            </div>
+            <div class="streak-stat">
+              <ion-icon name="trophy-outline"></ion-icon>
+              <div><span class="stat-label">Longest Streak</span><span class="stat-value">{{ habit.longestStreak }}</span></div>
+            </div>
+            <div class="streak-stat">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <div><span class="stat-label">Last Completed</span><span class="stat-value">{{ habit.lastCompletedDate || 'Not yet' }}</span></div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      <ion-text *ngIf="!dashboardSummary?.habits || dashboardSummary?.habits?.length === 0">
+        <p class="empty-state">No habit streaks found.</p>
+      </ion-text>
+    </div>
+
+  </div>
+
 </ion-content>

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">habitTrackerApp</string>
+    <string name="title_activity_main">habitTrackerApp</string>
+    <string name="package_name">com.tobyz.habittrackerapp</string>
+    <string name="custom_url_scheme">com.tobyz.habittrackerapp</string>
+</resources>

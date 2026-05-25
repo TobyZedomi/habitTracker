@@ -1,1 +1,6 @@
-
+ion-tab-bar.safe-tab-bar {
+  padding-bottom: max(var(--ion-safe-area-bottom, 0px), env(safe-area-inset-bottom, 0px));
+  height: calc(56px + max(var(--ion-safe-area-bottom, 0px), env(safe-area-inset-bottom, 0px)));
+  contain: layout;
+}
+ 

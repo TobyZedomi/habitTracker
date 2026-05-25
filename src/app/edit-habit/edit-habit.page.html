@@ -1,0 +1,92 @@
+<ion-header class="edit-header">
+  <ion-toolbar>
+    <ion-title>Edit Habit</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="logout-btn" fill="clear" (click)="logout()">
+        Logout
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="edit-content">
+  <div class="page-shell">
+
+    <section class="page-intro">
+      <div class="page-intro-text">
+        <h1>Edit Habit</h1>
+        <p>Update your habit details</p>
+      </div>
+      <ion-button class="return-btn" fill="outline" (click)="goBackToTab2()">
+        <ion-icon name="grid-outline" slot="start"></ion-icon>
+        Return to Habits
+      </ion-button>
+    </section>
+
+    <section *ngIf="loading" class="state-card">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading habit...</p>
+    </section>
+
+    <section *ngIf="errorMessage && !loading" class="state-card error-card">
+      <ion-text color="danger">
+        <p>{{ errorMessage }}</p>
+      </ion-text>
+    </section>
+
+    <form *ngIf="!loading" [formGroup]="habitForm" (ngSubmit)="onSubmit()" class="edit-card">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <ion-chip class="status-chip">
+            <ion-label>Update Habit</ion-label>
+          </ion-chip>
+          <h1>{{ habits?.activityName || 'Edit Habit' }}</h1>
+          <p>Change the habit details and save your updates.</p>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="section-head">
+          <h2>Habit Settings</h2>
+        </div>
+
+        <div class="form-grid">
+          <ion-item class="form-item">
+            <ion-label position="stacked">Activity Type</ion-label>
+            <ion-select formControlName="activityTypeId" interface="popover">
+              <ion-select-option *ngFor="let type of activityTypes" [value]="type.activityTypeId">
+                {{ type.name }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="form-item form-item-full">
+            <ion-label position="stacked">Description</ion-label>
+            <ion-textarea formControlName="description" autoGrow="true"></ion-textarea>
+          </ion-item>
+
+          <ion-item class="form-item">
+            <ion-label position="stacked">Reminder</ion-label>
+            <ion-input type="time" formControlName="reminder"></ion-input>
+          </ion-item>
+
+          <ion-item class="form-item">
+            <ion-label position="stacked">Target</ion-label>
+            <ion-input type="number" formControlName="target" min="1"></ion-input>
+          </ion-item>
+
+          <ion-item class="form-item">
+            <ion-label position="stacked">Frequency</ion-label>
+            <ion-input type="number" formControlName="frequency" min="1"></ion-input>
+          </ion-item>
+        </div>
+      </section>
+
+      <div class="button-row">
+        <ion-button class="save-btn" expand="block" type="submit">
+          Save Changes
+        </ion-button>
+      </div>
+    </form>
+  </div>
+</ion-content>

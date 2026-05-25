@@ -1,0 +1,98 @@
+<ion-header>
+  <ion-toolbar class="top-toolbar">
+    <div class="header-container">
+      <img src="assets/habittrackerlogo.avif" class="logo">
+      <span class="title">Coach Habits</span>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div class="login-wrapper">
+
+    <div class="login-card">
+
+      <h1 class="app-name">Coach Habits</h1>
+      <p class="login-title" style="font-weight: bold;">Create your account</p>
+
+      <form autocomplete="off">
+
+        <ion-item class="input-item">
+          <ion-input
+            [(ngModel)]="username"
+            name="username"
+            type="text"
+            placeholder="Enter your username"
+            autocomplete="off">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="input-item">
+          <ion-input
+            [(ngModel)]="displayName"
+            name="displayName"
+            type="text"
+            placeholder="Enter your display name"
+            autocomplete="off">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="input-item">
+          <ion-input
+            [(ngModel)]="email"
+            name="email"
+            type="email"
+            placeholder="Enter your email"
+            autocomplete="off">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="input-item">
+          <ion-input
+            [(ngModel)]="password"
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+            autocomplete="new-password">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="input-item">
+          <ion-input
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            placeholder="Confirm your password"
+            autocomplete="new-password">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="input-item">
+          <ion-input
+            [(ngModel)]="dateOfBirth"
+            name="dateOfBirth"
+            type="date"
+            autocomplete="off">
+          </ion-input>
+        </ion-item>
+
+      </form>
+
+      <ion-text color="danger" *ngIf="errorMessage">
+        <p class="error-text">{{ errorMessage }}</p>
+      </ion-text>
+
+      <ion-button expand="block" class="login-btn" (click)="register()">
+        REGISTER
+      </ion-button>
+
+      <ion-button expand="block" fill="clear" class="register-btn" (click)="goToLogin()">
+        BACK TO LOGIN
+      </ion-button>
+
+    </div>
+
+  </div>
+
+</ion-content>

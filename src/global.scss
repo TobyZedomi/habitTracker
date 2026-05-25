@@ -13,17 +13,20 @@
 @import "@ionic/angular/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/core.css";
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
-
-/* Optional CSS utils that can be commented out */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
+@import '@ionic/angular/css/palettes/dark.system.css';
+
+/* Optional CSS utils that can be commented out */
+
 
 /**
  * Ionic Dark Mode
@@ -34,4 +37,76 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+
+
+:root {
+  --ion-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+ 
+ion-content {
+  --padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+ 
+.activity-type-popover {
+  --width: 320px;
+}
+ 
+.activity-type-popover .popover-content {
+  border-radius: 16px;
+  overflow: hidden;
+  background: #12151c;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 40px rgba(2, 6, 23, 0.28);
+}
+ 
+.activity-type-popover ion-list {
+  background: #12151c;
+  padding: 8px 0;
+}
+ 
+.activity-type-popover ion-item {
+  --background: #12151c;
+  --color: #f3f4f6;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 52px;
+  font-weight: 600;
+}
+ 
+.activity-type-popover ion-item.item-radio-checked {
+  --background: rgba(79, 140, 255, 0.2);
+}
+ 
+.app-success-alert {
+  --background: #1e1e2f;
+  --color: #ffffff;
+  --border-radius: 16px;
+ 
+  .alert-wrapper {
+    padding: 10px 8px;
+  }
+ 
+  .alert-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #4cd964;
+    text-align: center;
+  }
+ 
+  .alert-message {
+    font-size: 14px;
+    color: #d1d1d1;
+    text-align: center;
+    margin-top: 8px;
+  }
+ 
+  .alert-button-group {
+    justify-content: center;
+    margin-top: 10px;
+  }
+ 
+  .alert-button {
+    color: #4cd964 !important;
+    font-weight: 600;
+  }
+}

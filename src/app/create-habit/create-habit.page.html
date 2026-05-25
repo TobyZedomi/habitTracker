@@ -1,0 +1,201 @@
+<ion-header class="create-habit-header">
+  <ion-toolbar>
+
+    <ion-title>Create Habit</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button class="logout-btn" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        Logout
+      </ion-button>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="create-habit-content">
+
+  <div class="page-shell">
+
+    <section class="page-intro">
+      <div class="page-intro-text">
+        <div class="intro-chip">
+          <ion-icon name="fitness-outline"></ion-icon>
+          <span>New Habit</span>
+        </div>
+        <h1>Create Habit</h1>
+        <p>Set up your routine and track your progress</p>
+      </div>
+
+      <ion-button class="return-btn" fill="outline" (click)="goBackToTab2()">
+        <ion-icon name="grid-outline" slot="start"></ion-icon>
+        Return to Habits
+      </ion-button>
+    </section>
+
+    <section *ngIf="loading" class="state-card loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Creating habit...</p>
+    </section>
+
+    <section *ngIf="errorMessage" class="state-card error-state">
+      <ion-text color="danger">
+        <p>{{ errorMessage }}</p>
+      </ion-text>
+    </section>
+
+    <ion-card class="form-card">
+      <ion-card-content>
+
+        <form [formGroup]="habitForm" (ngSubmit)="onSubmit()">
+
+          <div class="form-grid">
+
+            <div class="form-field full-width">
+              <label>
+                <span class="label-icon label-icon-blue">
+                  <ion-icon name="list-outline"></ion-icon>
+                </span>
+                <span>Activity Type</span>
+              </label>
+
+              <div class="select-shell select-shell-blue">
+
+                <div class="select-prefix">
+                  <ion-icon name="fitness-outline"></ion-icon>
+                </div>
+
+                <div class="select-chevron">
+                  <ion-icon name="chevron-down-outline"></ion-icon>
+                </div>
+
+                <ion-item lines="none" class="field-item select-item">
+                  <ion-select
+                    formControlName="activityTypeId"
+                    interface="popover"
+                    [interfaceOptions]="activityTypeSelectOptions"
+                    placeholder="Select activity type">
+
+                    <ion-select-option
+                      *ngFor="let activityType of activityTypes"
+                      [value]="activityType.activityTypeId">
+                      {{ activityType.name }}
+                    </ion-select-option>
+
+                  </ion-select>
+                </ion-item>
+
+              </div>
+
+              <ion-note
+                color="danger"
+                *ngIf="habitForm.get('activityTypeId')?.touched && habitForm.get('activityTypeId')?.invalid">
+                Activity type is required.
+              </ion-note>
+            </div>
+
+            <div class="form-field full-width">
+              <label>
+                <span class="label-icon label-icon-teal">
+                  <ion-icon name="document-text-outline"></ion-icon>
+                </span>
+                <span>Description</span>
+              </label>
+
+              <ion-item lines="none" class="field-item field-accent">
+                <ion-textarea
+                  formControlName="description"
+                  placeholder="Describe the habit"
+                  autoGrow="true">
+                </ion-textarea>
+              </ion-item>
+            </div>
+
+            <div class="form-field">
+              <label>
+                <span class="label-icon label-icon-green">
+                  <ion-icon name="alarm-outline"></ion-icon>
+                </span>
+                <span>Reminder</span>
+              </label>
+
+              <ion-item lines="none" class="field-item field-success">
+                <ion-input
+                 type="time"
+                  formControlName="reminder"
+                  placeholder="Enter reminder">
+                </ion-input>
+              </ion-item>
+
+              <ion-note
+                color="danger"
+                *ngIf="habitForm.get('reminder')?.touched && habitForm.get('reminder')?.invalid">
+                Reminder is required.
+              </ion-note>
+            </div>
+
+            <div class="form-field">
+              <label>
+                <span class="label-icon label-icon-amber">
+                  <ion-icon name="flag-outline"></ion-icon>
+                </span>
+                <span>Target</span>
+              </label>
+
+              <ion-item lines="none" class="field-item field-warning">
+                <ion-input
+                  type="number"
+                  formControlName="target"
+                  placeholder="Enter target"
+                  min="1">
+                </ion-input>
+              </ion-item>
+
+              <ion-note
+                color="danger"
+                *ngIf="habitForm.get('target')?.touched && habitForm.get('target')?.invalid">
+                Target is required.
+              </ion-note>
+            </div>
+
+            <div class="form-field full-width">
+              <label>
+                <span class="label-icon label-icon-purple">
+                  <ion-icon name="repeat-outline"></ion-icon>
+                </span>
+                <span>Frequency</span>
+              </label>
+
+              <ion-item lines="none" class="field-item field-purple">
+                <ion-input
+                  type="number"
+                  formControlName="frequency"
+                  placeholder="Enter frequency"
+                  min="1">
+                </ion-input>
+              </ion-item>
+
+              <ion-note
+                color="danger"
+                *ngIf="habitForm.get('frequency')?.touched && habitForm.get('frequency')?.invalid">
+                Frequency is required.
+              </ion-note>
+            </div>
+
+          </div>
+
+          <div class="submit-row">
+            <ion-button expand="block" type="submit" [disabled]="loading" class="submit-btn">
+              <ion-icon name="fitness-outline" slot="start"></ion-icon>
+              Create Habit
+            </ion-button>
+          </div>
+
+        </form>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+</ion-content>

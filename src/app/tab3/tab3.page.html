@@ -1,17 +1,185 @@
-<ion-header [translucent]="true">
+<ion-header class="coach-header">
   <ion-toolbar>
-    <ion-title>
-      Tab 3
-    </ion-title>
+    <ion-title>AI Coach</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="logout-btn" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        Logout
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="coach-content">
+  <div class="page-shell">
 
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+    <section class="page-intro">
+      <div class="page-intro-text">
+        <h1>AI Coach</h1>
+        <p>Personalised insights and coaching for your habits</p>
+      </div>
+    </section>
+
+    <div class="tab-switcher">
+      <button class="tab-btn" [class.active]="activeTab === 'insights'" (click)="switchTab('insights')">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        Insights
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'chat'" (click)="switchTab('chat')">
+        <ion-icon name="chatbubble-outline"></ion-icon>
+        Chat
+      </button>
+    </div>
+
+    <div *ngIf="activeTab === 'insights'">
+
+      <section *ngIf="insightLoading" class="state-card loading-state">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p class="loading-text">Analysing your habits...</p>
+      </section>
+
+      <section *ngIf="insightError && !insightLoading" class="state-card error-state">
+        <ion-text color="danger">
+          <p>{{ insightError }}</p>
+        </ion-text>
+        <ion-button (click)="loadInsights()">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Try Again
+        </ion-button>
+      </section>
+
+      <div *ngIf="insight && !insightLoading">
+
+        <ion-card class="insight-card">
+          <ion-card-content>
+            <div class="insight-label-row">
+              <ion-icon name="sparkles-outline"></ion-icon>
+              <span class="insight-label">Your Personalised Insight</span>
+            </div>
+            <p class="insight-text">{{ insight.insightText }}</p>
+            <ion-button fill="outline" size="small" (click)="refreshInsights()">
+              <ion-icon name="refresh-outline" slot="start"></ion-icon>
+              Refresh
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+
+        <div *ngIf="insight.recommendations && insight.recommendations.length > 0">
+
+          <div *ngIf="getVideos(insight.recommendations).length > 0">
+            <div class="section-heading">
+              <h2>
+                <ion-icon name="play-circle-outline"></ion-icon>
+                Recommended Videos
+              </h2>
+              <p>Curated for your habits</p>
+            </div>
+
+            <ion-card
+              *ngFor="let rec of getVideos(insight.recommendations)"
+              class="rec-card">
+              <ion-card-content>
+                <div class="rec-type-badge video">VIDEO</div>
+                <div class="rec-title">{{ rec.title }}</div>
+                <div class="rec-meta">{{ rec.channel }}</div>
+                <div class="rec-desc">{{ rec.description }}</div>
+                <ion-button
+                  fill="outline"
+                  size="small"
+                  (click)="openLink(rec.url)"
+                  class="rec-link-btn">
+                  View on YouTube
+                </ion-button>
+              </ion-card-content>
+            </ion-card>
+          </div>
+
+          <div *ngIf="getBooks(insight.recommendations).length > 0">
+            <div class="section-heading">
+              <h2>
+                <ion-icon name="book-outline"></ion-icon>
+                Recommended Books
+              </h2>
+              <p>Curated for your habits</p>
+            </div>
+
+            <ion-card
+              *ngFor="let rec of getBooks(insight.recommendations)"
+              class="rec-card"
+              (click)="openLink(rec.url)">
+              <ion-card-content>
+                <div class="rec-type-badge book">BOOK</div>
+                <div class="rec-title">{{ rec.title }}</div>
+                <div class="rec-meta">{{ rec.author }}</div>
+                <div class="rec-desc">{{ rec.description }}</div>
+              </ion-card-content>
+            </ion-card>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeTab === 'chat'" class="chat-section">
+
+      <div class="chat-topbar">
+        <span class="chat-subtitle">Ask your AI coach anything about your habits</span>
+        <ion-button fill="outline" size="small" (click)="newConversation()">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          New Chat
+        </ion-button>
+      </div>
+
+      <div class="messages-wrap">
+
+        <div *ngIf="messages.length === 0" class="state-card empty-state">
+          <ion-icon name="chatbubble-outline" class="empty-icon"></ion-icon>
+          <h2>Start a conversation</h2>
+          <p>Ask for tips, feedback, or motivation on your habits.</p>
+        </div>
+
+        <div *ngFor="let msg of messages" class="message-row" [class.user-row]="msg.role === 'user'" [class.assistant-row]="msg.role === 'assistant'">
+          <div class="bubble" [class.user-bubble]="msg.role === 'user'" [class.assistant-bubble]="msg.role === 'assistant'">
+            {{ msg.content }}
+          </div>
+
+          <div *ngIf="msg.role === 'assistant' && msg.recommendations && msg.recommendations.length > 0" class="inline-recs">
+            <div
+              *ngFor="let rec of msg.recommendations"
+              class="inline-rec-card"
+              (click)="openLink(rec.url)">
+              <div class="rec-type-badge" [class.video]="rec.type === 'VIDEO'" [class.book]="rec.type === 'BOOK'">
+                {{ rec.type }}
+              </div>
+              <div class="rec-title">{{ rec.title }}</div>
+              <div class="rec-meta">{{ rec.type === 'VIDEO' ? rec.channel : rec.author }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="chatLoading" class="message-row assistant-row">
+          <div class="bubble assistant-bubble typing">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <div #chatBottom></div>
+      </div>
+
+      <div class="input-bar">
+        <textarea
+          class="msg-input"
+          [(ngModel)]="userInput"
+          placeholder="Ask your coach..."
+          rows="1"
+          (keydown.enter)="$event.preventDefault(); sendMessage()">
+        </textarea>
+        <button class="send-btn" (click)="sendMessage()" [disabled]="!userInput.trim() || chatLoading">
+          <ion-icon name="send-outline"></ion-icon>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
 </ion-content>

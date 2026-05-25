@@ -1,0 +1,234 @@
+<ion-header class="detail-header">
+  <ion-toolbar>
+    <ion-title>Habit Detail</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="logout-btn" fill="clear" (click)="logout()">
+        Logout
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="detail-content">
+  <div class="page-shell">
+
+    <section class="page-intro">
+      <div class="page-intro-text">
+        <h1>Habit Detail</h1>
+        <p>View and manage your habit</p>
+      </div>
+      <ion-button class="return-btn" fill="outline" (click)="goBackToHabits()">
+        <ion-icon name="grid-outline" slot="start"></ion-icon>
+        Return to Habits
+      </ion-button>
+    </section>
+
+    <section *ngIf="loading" class="state-card">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading habit details...</p>
+    </section>
+
+    <section *ngIf="errorMessage && !loading" class="state-card error-card">
+      <ion-text color="danger">
+        <p>{{ errorMessage }}</p>
+      </ion-text>
+    </section>
+
+    <ng-container *ngIf="habits && !loading">
+      <section class="hero-card">
+        <div class="hero-left">
+          <ion-chip class="status-chip" [color]="habits.active ? 'success' : 'medium'">
+            <ion-label>{{ habits.active ? 'Active' : 'Inactive' }}</ion-label>
+          </ion-chip>
+          <h1>{{ habits.activityName }}</h1>
+          <p>{{ habits.activityStatusText }}</p>
+        </div>
+
+        <div class="hero-actions">
+          <ion-button class="primary-btn" expand="block" (click)="goToLogActivity()">
+            <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+            Log Activity
+          </ion-button>
+          <ion-button class="secondary-btn" expand="block" fill="outline" (click)="goToEditHabit()">
+            <ion-icon slot="start" name="create-outline"></ion-icon>
+            Edit Habit
+          </ion-button>
+        </div>
+      </section>
+
+      <section class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-icon streak-icon">
+            <ion-icon name="flame-outline"></ion-icon>
+          </div>
+          <div class="summary-copy">
+            <span class="summary-label">Current Streak</span>
+            <span class="summary-value">{{ habits.currentStreak }}</span>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-icon trophy-icon">
+            <ion-icon name="trophy-outline"></ion-icon>
+          </div>
+          <div class="summary-copy">
+            <span class="summary-label">Longest Streak</span>
+            <span class="summary-value">{{ habits.longestStreak }}</span>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-icon date-icon">
+            <ion-icon name="calendar-outline"></ion-icon>
+          </div>
+          <div class="summary-copy">
+            <span class="summary-label">Last Completed</span>
+            <span class="summary-value">
+              {{ habits.lastCompletedDate ? (habits.lastCompletedDate | date:'mediumDate') : 'Not yet' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-icon status-icon">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+          </div>
+          <div class="summary-copy">
+            <span class="summary-label">Status</span>
+            <span class="summary-value">{{ habits.active ? 'Enabled' : 'Disabled' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="logs-card">
+        <div class="section-head">
+          <h2>Activity Logs</h2>
+          <p>Recent entries for this habit</p>
+        </div>
+
+        <div *ngIf="logs.length === 0" class="empty-logs">
+          <p>No logs found.</p>
+        </div>
+
+        <div *ngIf="logs.length > 0" class="logs-list">
+          <ion-card class="activity-log-card" *ngFor="let log of logs">
+            <ion-card-content>
+
+              <div class="log-top" (click)="toggleLog(log.habit_tracker_log_id)">
+                <div class="log-title-wrap">
+                  <div class="log-icon-badge">
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
+                  </div>
+                  <div class="log-title-text">
+                    <div class="log-title">{{ habits.activityName }}</div>
+                    <div class="log-date-row">
+                      <ion-icon name="calendar-outline"></ion-icon>
+                      <span>{{ log.date_of_activity | date:'mediumDate' }}</span>
+                      <ion-icon name="time-outline"></ion-icon>
+                      <span>{{ log.created_at | date:'shortTime' }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="log-expand-row">
+                  <div class="log-actions" (click)="$event.stopPropagation()">
+                    <span class="delete-log-text">Delete</span>
+                    <ion-button
+                      fill="clear"
+                      color="danger"
+                      class="delete-log-btn"
+                      (click)="confirmDeleteLog(log.habit_tracker_log_id)">
+                      <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
+                  </div>
+                  <ion-icon [name]="expandedLogIds.has(log.habit_tracker_log_id) ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+                </div>
+              </div>
+
+              <div *ngIf="expandedLogIds.has(log.habit_tracker_log_id)">
+
+                <div *ngIf="editingLogId !== log.habit_tracker_log_id">
+                  <div class="log-stats">
+                    <div class="log-stat">
+                      <div class="log-stat-icon time">
+                        <ion-icon name="time-outline"></ion-icon>
+                      </div>
+                      <div class="log-stat-text">
+                        <span class="log-stat-label">Duration</span>
+                        <span class="log-stat-value">{{ log.duration_minutes ? log.duration_minutes + ' mins' : 'No data for this' }}</span>
+                      </div>
+                    </div>
+                    <div class="log-stat">
+                      <div class="log-stat-icon map">
+                        <ion-icon name="map-outline"></ion-icon>
+                      </div>
+                      <div class="log-stat-text">
+                        <span class="log-stat-label">Distance</span>
+                        <span class="log-stat-value">{{ log.distance_km ? log.distance_km + ' km' : 'No data for this' }}</span>
+                      </div>
+                    </div>
+                    <div class="log-stat">
+                      <div class="log-stat-icon flame">
+                        <ion-icon name="flame-outline"></ion-icon>
+                      </div>
+                      <div class="log-stat-text">
+                        <span class="log-stat-label">Calories</span>
+                        <span class="log-stat-value">{{ log.calories_burned ? log.calories_burned : 'No data for this' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="log-notes">
+                    <ion-icon name="document-text-outline"></ion-icon>
+                    <div>
+                      <span class="notes-label">Notes</span>
+                      <p>{{ log.notes || 'No notes' }}</p>
+                    </div>
+                  </div>
+                  <div class="log-edit-row">
+                    <ion-button fill="outline" size="small" (click)="startEdit(log)">
+                      <ion-icon name="create-outline" slot="start"></ion-icon>
+                      Edit
+                    </ion-button>
+                  </div>
+                </div>
+
+                <div *ngIf="editingLogId === log.habit_tracker_log_id" class="edit-form">
+                  <div class="edit-fields">
+                    <div class="edit-field">
+                      <span class="edit-label">Duration (mins)</span>
+                      <input type="number" class="edit-input" [(ngModel)]="editDuration" placeholder="e.g. 30" min="0">
+                      <span class="edit-error" *ngIf="editDuration !== null && editDuration < 0">Duration cannot be negative</span>
+                    </div>
+                    <div class="edit-field">
+                      <span class="edit-label">Distance (km)</span>
+                      <input type="number" class="edit-input" [(ngModel)]="editDistance" placeholder="e.g. 5.0" min="0">
+                      <span class="edit-error" *ngIf="editDistance !== null && editDistance < 0">Distance cannot be negative</span>
+                    </div>
+                    <div class="edit-field">
+                      <span class="edit-label">Calories</span>
+                      <input type="number" class="edit-input" [(ngModel)]="editCalories" placeholder="e.g. 300" min="0">
+                      <span class="edit-error" *ngIf="editCalories !== null && editCalories < 0">Calories cannot be negative</span>
+                    </div>
+                    <div class="edit-field edit-field-full">
+                      <span class="edit-label">Notes</span>
+                      <textarea class="edit-input edit-textarea" [(ngModel)]="editNotes" placeholder="Add notes..."></textarea>
+                    </div>
+                  </div>
+                  <div class="edit-actions">
+                    <ion-button fill="outline" size="small" color="medium" (click)="cancelEdit()">
+                      Cancel
+                    </ion-button>
+                    <ion-button fill="solid" size="small" (click)="saveEdit(log.habit_tracker_log_id)">
+                      Save
+                    </ion-button>
+                  </div>
+                </div>
+
+              </div>
+
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </section>
+    </ng-container>
+  </div>
+</ion-content>

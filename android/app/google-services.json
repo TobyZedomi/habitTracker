@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "968852468520",
+    "project_id": "habittrackerapp-af3a5",
+    "storage_bucket": "habittrackerapp-af3a5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968852468520:android:1397df1abf6507b607961d",
+        "android_client_info": {
+          "package_name": "com.tobyz.habittrackerapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqs2otNvnFDb4OEzV5qk-jBn1Z5mBNAck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
